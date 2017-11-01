@@ -2,11 +2,16 @@
 
 from pymongo import MongoClient
 
-def get_aim(seq):
+def get_aim(sub,seq):
     ranking=int(seq)
     client=MongoClient('localhost',27017)
     db=client.score
-    unis=db.score_seq.find()
+    if sub=='1':
+        collection=db.score_seq
+    else:
+        collection=db.score1w_seq
+    
+    unis=collection.find()
     aver_seq={}
     for uni in unis:
         total=0
@@ -24,9 +29,11 @@ def get_aim(seq):
     temp_l=sorted([[v[1],v[0]] for v in aver_seq.items()])
     aims=temp_l[:20]
     for aim in aims:
-        col=db.score_seq.find({'_id':aim[1]})
+        col=collection.find({'_id':aim[1]})
         print("%s\n%s"%(col[0]['_id'], col[0]['admit']))
 
 if __name__=='__main__':
-    seq=input('Please input seqence:')
-    get_aim(seq)
+    sub=input('选择文科或理科:  1:理科  2:文科')
+    seq=input('输入名次:')
+
+    get_aim(sub,seq)

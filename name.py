@@ -21,7 +21,7 @@ class MongoScore:
         else:
             raise KeyError(name+'does not exist')
     def get_all(self):
-        return self.db.score1.find()
+        return self.db.score1w.find()
 
     def __setitem__(self,name,record):
         self.db.score.insert_one({'name':name,'admit':record})
@@ -30,9 +30,9 @@ class MongoScore:
         self.db.score.update({'name':name},{'$set':{'admit':record}},upsert=True)
 
     def add_one(self,col):
-        self.db.score1.insert_one({'_id':col['name'],'admit':col['admit']})
+        self.db.score1w.insert_one({'_id':col['name'],'admit':col['admit']})
     def add_seq(self,col):
-        self.db.score_seq.insert_one({'_id':col['_id'],'admit':col['admit']})
+        self.db.score1w_seq.insert_one({'_id':col['_id'],'admit':col['admit']})
 def get_score(url):
     r=requests.get(url)
     print(r.url)
@@ -65,11 +65,14 @@ def get_score(url):
         return None
 # begin and end use to diffrent school code
 def get_data():
-    begin=30
-    end=580
+    begin=280
+    end=400
+    hebei='10016'
+    wenke='10034'
+    like='10035'
     ms=MongoScore()
-    for i in range(end):
-        url='http://gkcx.eol.cn/schoolhtm/schoolAreaPoint/'+str(i+begin)+'/10016/10035/10036.htm'
+    for i in range(505,650):
+        url='http://gkcx.eol.cn/schoolhtm/schoolAreaPoint/'+str(i)+'/'+hebei+'/'+wenke+'/10036.htm'
         try:
             result=get_score(url)
             if result:
@@ -77,7 +80,6 @@ def get_data():
         except IndexError:
             print("%d error"%(i+begin))
         time.sleep(5+random.random()*10)
-        print(i+begin)
 
 def get_order(filename):
     seq={}
@@ -90,9 +92,9 @@ def get_order(filename):
 
 def add_order():
     torder={}    
-    torder['2015']=get_order('2015.csv')
-    torder['2014']=get_order('2014.csv')
-    torder['2016']=get_order('2016.csv')
+    torder['2015']=get_order('2015w.csv')
+    torder['2014']=get_order('2014w.csv')
+    torder['2016']=get_order('2016w.csv')
     ms=MongoScore()
     enroll=ms.get_all()
     for uni in enroll:
